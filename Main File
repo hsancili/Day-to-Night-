@@ -1,0 +1,304 @@
+PImage tree, cloud, pump, palm, building, building2;
+float time=0;//for wave animation
+int xPos=200;
+int yPos;
+PImage [] pictures, green;
+PImage img, img2;
+Leafs [] leaf = new Leafs[400];
+boolean leavesfall = false;
+
+float trunkLen =    200;        
+float windInc =     0.01;       
+
+float windSpeed =   0;    
+float windSpeed2 =   0; 
+float noisePos =    0;          
+
+// for the fancier Pythagoras tree
+float branchAngle = 30;         // angle between two branches
+int minLen =        10; 
+////////////////////
+//Water things
+int nb=750; // number of drops
+int maxDrops =1000;
+int minDrops=500;
+int h,h1;
+Drop[] drops=new Drop[maxDrops];
+
+float[]a=new float[2000];//star posx array
+
+float car;//car
+float circleX;
+float circleXr;
+float snow;//snow
+float rain;//rain
+PImage start;
+
+//for stars 
+float[] xPostar = new float[250];
+float[] yPostar = new float[250];
+float[] xVel = new float[250];
+float[] yVel = new float[250];
+float[] s = new float[250]; 
+
+int ab = 0;
+int b = 0;
+int c = 100;
+int p = 10;
+
+int quantity = 300;
+float [] xPosition = new float[quantity];
+float [] yPosition = new float[quantity];
+int [] flakeSize = new int[quantity];
+int [] direction = new int[quantity];
+int minFlakeSize = 1;
+int maxFlakeSize = 5;
+
+int stage;
+
+
+void setup() {
+  size(1000, 700);
+  frameRate(20);
+  background(#89BCE5);
+ 
+  //load images
+  pictures = new PImage [4];
+  pictures[0] = loadImage("redleaf.png");
+  pictures[1] = loadImage("brownleaf.png");
+  pictures[2] = loadImage("orangeleaf.png");
+  pictures[3] = loadImage("yellowleaf.png");
+  //set parameters...
+  
+  for (int i = 0; i < 400; i++ ) { 
+    float x = 0;
+    float y = 0;
+    while (dist (width/3, height/2, x, y) > 350) {
+      x= random(200, 900);
+      y= random(100, 450);
+    }
+    rotate(radians(windSpeed2));
+    leaf [i] = new Leafs (x, y, pictures[int(random(0, 4))]);
+     
+  }
+  smooth();
+  frameRate(30);
+  h = abs(height/3);
+  h1=h*2;
+  for (int i = 0; i < maxDrops; i++){
+    drops[i] = new Drop(int(random(width)),-int(random(height*2)),(int)map((h+int(random(h1))),height*.35,height,0,height),1280); 
+}
+}
+void draw() {
+ 
+   if (keyPressed){
+    if (key=='1'){
+      stage=1;
+    }
+   } 
+    if(stage==1);{
+  background(#737686);
+  //ellipse(100, 100, 40, 40);
+  draw_wave();
+  palmtree();
+   for (int i=0;i<nb;i++){
+   drops[i].fall();
+    fill(#E8E1A2);
+    rect(0, 600, 1000, 100);
+  }
+  building();
+  bridge();
+    }
+    
+    if (keyPressed){
+    if (key=='3'){
+      stage=3;
+    }}
+    if (stage==3){
+background(#6ABCE0);
+noStroke();
+ fill(#83A8CE);
+  ellipse(0,500, 300,300);
+   ellipse(300,500, 200,300);
+   ellipse(600,500, 100,300);
+  fill(#3A5A43);
+draw_wave();
+ //draw_stars();
+ tree();
+ tree2();
+ tree3();
+ leaves();
+ snow();
+    rect(0, 600, 1000, 100);
+   
+    
+    }
+    if (keyPressed){if (key=='2'){
+      stage=2;
+    }}
+    if (stage==2){
+       background(#1B276A);
+       fill(255);
+       ellipse(100, 100, 100, 100);
+       
+   draw_wave();
+   palmtree();
+  
+ fill(#E8E1A2);
+    rect(0, 600, 1000, 100);
+    building2();
+    bridge();
+    }
+    
+    if (keyPressed){if (key=='4'){
+      stage=4;
+    }}
+    if (stage==4){
+      background(#233767);
+        draw_wave();
+        // draw_stars();
+       tree();
+       tree2();
+       tree3();
+       snow();
+       fill(255);
+        rect(0, 600, 1000, 100);
+        rect(100, 600, 10, 300);
+      
+    }
+  //cloud
+  cloud = loadImage("cloud.png");
+    fill(255, 75);
+    image(cloud, xPos, 0, 160, 160);
+    xPos=xPos+1;
+ 
+}
+
+
+int randomSign() //returns +1 or -1
+{
+  float num = random(-1,1);
+  if(num==0)
+    return -1;
+  else
+    return (int)(num/abs(num));
+}
+
+color randomColor(){
+  return color(random(0,100),99,99);
+}
+
+color slightlyRandomColor(color inputCol,float length){
+  float h = hue(inputCol);
+  h = (h+random(-length,length))%100;
+  return color(h,99,99);
+}
+
+void draw_stars(){
+  mouseClicked();{
+  fill(255);
+  noStroke();
+  for (int i=0;i<a.length; i++) ellipse(a[i],i*0.4,2,2);
+  }
+}
+
+ void leaves(){
+  for (int i = 0; i < 400; i++) {    
+    leaf[i].display();
+    if (mousePressed) {
+      leavesfall = true;
+      }
+    if (leavesfall) {
+      leaf[i].fall();
+    }
+   }
+}
+
+void tree(){
+    //tree
+  tree = loadImage("tree.png");
+    image(tree, width/3, height/8);
+}
+void tree2(){
+    //tree
+  tree = loadImage("tree.png");
+    image(tree, width/1.5, height/11);
+}
+
+void tree3(){
+    //tree
+  tree = loadImage("tree.png");
+    image(tree, width/5.8, height/11);
+}
+
+ void draw_wave() {
+  
+  float x=0;
+  stroke(#83A8CE);
+  while(x<width){
+    line(x,520+50*noise(x/100,time),x,height);
+    x=x+1;
+  }
+  time=time+0.01;
+}
+
+void palmtree(){
+  palm = loadImage("palmtree.png");
+  image(palm, width/2, height/4);
+}
+
+void building(){
+  building = loadImage("building.png");
+  image(building, 0,0);
+}
+
+void building2(){
+  building2 = loadImage("building2.png");
+  image(building2, 0,0);
+}
+
+void stars(){
+  for (int i=0; i < 250; i++) {
+    noStroke ();
+    ellipse(xPostar[i], yPostar[i], s[i], s[i]);
+  }
+}
+
+void snow(){
+  stroke(255);
+   for(int i = 0; i < quantity; i++) {
+    flakeSize[i] = round(random(minFlakeSize, maxFlakeSize));
+    xPosition[i] = random(0, width);
+    yPosition[i] = random(0, height);
+    direction[i] = round(random(0, 1));
+  }
+ 
+   for(int i = 0; i < xPosition.length; i++) {
+    
+    ellipse(xPosition[i], yPosition[i], flakeSize[i], flakeSize[i]);
+    
+    if(direction[i] == 0) {
+      xPosition[i] += map(flakeSize[i], minFlakeSize, maxFlakeSize, .1, .5);
+    } else {
+      xPosition[i] -= map(flakeSize[i], minFlakeSize, maxFlakeSize, .1, .5);
+    }
+    
+    yPosition[i] += flakeSize[i] + direction[i]; 
+    
+    if(xPosition[i] > width + flakeSize[i] || xPosition[i] < -flakeSize[i] || yPosition[i] > height + flakeSize[i]) {
+      xPosition[i] = random(0, width);
+      yPosition[i] = -flakeSize[i];
+    }
+    
+  }
+}
+void bridge() {
+  //bridge
+  stroke(#675223);
+  for (int i=0; i<1000; i=i+10) {
+    line(i,650,i,680);
+  }
+  fill(#675223);
+  rect(0,650,1000,10);
+  rect(0,680,1000,20);
+}
